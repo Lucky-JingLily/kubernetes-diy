@@ -1,0 +1,76 @@
+apiVersion: v1 # 版本号 v1
+kind: Pod # pod
+metadata: # 元数据
+  name: String  # pod名称
+  namespace: string # pod所属的命名空间，默认为default
+  labels: # 自定义标签列表
+    name: string
+  annotations:  # 自定义注解列表
+    name: string
+spec: # pod中容器详细定义
+  containers: # pod中容器列表
+  - name: string  # 容器名称
+    image: string # 容器镜像名
+    imagePullPolicy: [Always | Never | IfNotPresent]  # 获取镜像策略，默认为Always：表示每次都尝试重新下载镜像，IfNotPresent表示如果本地有，使用本地，否则下载，Never表示总使用本地
+    command: [string] # 容器的启动命令列表，如果不指定，则使用镜像打包时候的启动命令
+    args: [string]  # 容器命令启动参数
+    workingDir: string  # 容器工作目录
+    volumeMounts: # 挂载到容器内部的存储卷配置
+    - name: string  # 引用pod定义的共享存储卷的名称，需要使用volumes[]部分定义的共享存储卷名称
+      mountPath: string # 存储卷在容器内mount的绝对路径
+      readOnly: boolean # 是否为只读模式，默认为读写模式
+    ports:
+    - name: string
+      containerPort: int
+      hostPort: int
+      protocol: string
+    env:
+    - name: string
+      value: string
+    resources:
+      limits:
+        cpu: string
+        memory: string
+      requests:
+        cpu: string
+        memory: string
+    livenessProbe:
+      exec:
+        command: [string]
+      httpGet:
+        path: string
+        port: number
+        host: string
+        scheme: string
+        httpHeaders:
+        - name: string
+          value: string
+      tcpSocket:
+        port: number
+      initialDelaySeconds: 0
+      timeoutSeconds: 0
+      periodSeconds: 0
+      successThreshold: 0
+      failureThreshold: 0
+    securityContext:
+      privileged: false
+  restartPolicy: [Always | Never | IfNotPresent]
+  nodeSelector: object
+  imagePullSecrets:
+  - name: string
+  hostNetwork: false
+  volumes:
+  - name: string
+    emptyDir: {}
+    hostPath:
+      path: string
+    secret:
+      secretName: string
+      items:
+      - key: string
+        path: string
+    configMap:
+      name: string
+      items:
+      - key: string
+        path: string
