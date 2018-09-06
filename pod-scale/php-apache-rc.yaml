@@ -12,9 +12,6 @@ spec:
     spec:
       containers:
         - name: php-apache
-          image: registry.cn-hangzhou.aliyuncs.com/devkevin/hpa-example
-          resources:
-            requests:
-              cpu: 200m
+          image: php
           ports:
             - containerPort: 80
