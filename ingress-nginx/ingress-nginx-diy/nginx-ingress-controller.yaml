@@ -54,4 +54,4 @@ spec:
         - --default-backend-service=$(POD_NAMESPACE)/default-http-backend
 #        - --default-ssl-certificate=$(POD_NAMESPACE)/ingress-secret
       nodeSelector:
-        kubernetes.io/hostname: xdata-lpj-master
+        kubernetes.io/hostname: xdata-relay-snat

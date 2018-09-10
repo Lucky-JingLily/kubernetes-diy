@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: elasticsearch-ingress
+  namespace: ns-elasticsearch
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: elasticsearch.k8s-nginx.jcloud.com
+    http:
+      paths:
+      - backend:
+          serviceName: elasticsearch-service
+          servicePort: 9200
