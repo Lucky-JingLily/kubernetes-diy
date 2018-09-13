@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: centos-diy
+  labels:
+    app: centos-diy
+spec:
+  containers:
+  - image: registry.cn-hangzhou.aliyuncs.com/devkevin/centos-diy:v1
+    command:
+      - tail
+      - -f
+      - /var/log/lastlog
+    imagePullPolicy: IfNotPresent
+    name: centos-diy
+    resources:
+          limits:
+            cpu: 100m
+          requests:
+            cpu: 100m
+  restartPolicy: Always

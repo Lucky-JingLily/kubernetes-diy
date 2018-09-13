@@ -1,0 +1,30 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: centos-diy
+  namespace: default
+  labels:
+    k8s-app: centos-diy
+    kubernetes.io/cluster-service: "true"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: centos-diy
+  template:
+    metadata:
+      labels:
+        k8s-app: centos-diy
+    spec:
+      containers:
+      - name: centos-diy
+        image: registry.cn-hangzhou.aliyuncs.com/devkevin/centos-diy:v1
+        resources:
+          limits:
+            cpu: 100m
+          requests:
+            cpu: 100m
+        command:
+          - tail
+          - -f
+          - /var/log/lastlog

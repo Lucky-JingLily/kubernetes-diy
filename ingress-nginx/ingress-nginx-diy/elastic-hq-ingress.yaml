@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: elastic-hq-ingress
+  namespace: ns-elasticsearch
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: elastic-hq.k8s-nginx.jcloud.com
+    http:
+      paths:
+      - backend:
+          serviceName: elastichq
+          servicePort: 5000

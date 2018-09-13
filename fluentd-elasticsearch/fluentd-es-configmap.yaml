@@ -1,7 +1,7 @@
 kind: ConfigMap
 apiVersion: v1
 metadata:
-  name: fluentd-es-config-v0.1.4
+  name: fluentd-es-new-config-v0.1.4
   namespace: kube-system
   labels:
     addonmanager.kubernetes.io/mode: Reconcile
@@ -37,7 +37,7 @@ data:
     # The time_format specification below makes sure we properly
     # parse the time format produced by Docker. This will be
     # submitted to Elasticsearch and should appear like:
-    # $ curl 'http://elasticsearch-logging:9200/_search?pretty'
+    # $ curl 'http://elasticsearch-logging-new:9200/_search?pretty'
     # ...
     # {
     #      "_index" : "logstash-2014.09.25",
@@ -420,7 +420,7 @@ data:
       @type elasticsearch
       @log_level info
       include_tag_key true
-      host elasticsearch-logging
+      host elasticsearch-logging-new
       port 9200
       logstash_format true
       <buffer>
