@@ -117,7 +117,7 @@ metadata:
   name: elasticsearch-data
   namespace: ns-elasticsearch
 spec:
-  replicas: 2
+  replicas: 3
   revisionHistoryLimit: 10
   selector:
     matchLabels:
