@@ -18,13 +18,11 @@ spec:
     spec:
       containers:
       - name: centos-diy
-        image: registry.cn-hangzhou.aliyuncs.com/devkevin/centos-diy:v1
+        image: registry.cn-hangzhou.aliyuncs.com/devkevin/centos-diy:v12
         resources:
           limits:
             cpu: 100m
           requests:
             cpu: 100m
         command:
-          - tail
-          - -f
-          - /var/log/lastlog
+          - /root/init.sh

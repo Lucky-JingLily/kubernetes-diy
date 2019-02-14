@@ -27,7 +27,7 @@ data:
     cloud.auth: ${ELASTIC_CLOUD_AUTH}
 
     output.elasticsearch:
-      hosts: ['elasticsearch-service.ns-elasticsearch:9200']
+      hosts: ['10.16.0.144:9200']
 ---
 apiVersion: v1
 kind: ConfigMap

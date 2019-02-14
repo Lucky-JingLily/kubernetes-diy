@@ -55,7 +55,7 @@ spec:
     spec:
       containers:
         - name: elasticsearch-master
-          image: docker.elastic.co/elasticsearch/elasticsearch:6.4.0-1
+          image: docker.elastic.co/elasticsearch/elasticsearch:6.4.0
           lifecycle:
             postStart:
               exec:
@@ -117,7 +117,7 @@ metadata:
   name: elasticsearch-data
   namespace: ns-elasticsearch
 spec:
-  replicas: 3
+  replicas: 2
   revisionHistoryLimit: 10
   selector:
     matchLabels:
@@ -130,7 +130,7 @@ spec:
     spec:
       containers:
         - name: elasticsearch-data
-          image: docker.elastic.co/elasticsearch/elasticsearch:6.4.0-1
+          image: docker.elastic.co/elasticsearch/elasticsearch:6.4.0
           lifecycle:
             postStart:
               exec:

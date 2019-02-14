@@ -1,0 +1,15 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: hadoop-hive-ingress
+  namespace: jyj-hadoop
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: hadoop-hive.k8s-nginx.jcloud.com
+    http:
+      paths:
+      - backend:
+          serviceName: hadoop-hive
+          servicePort: 10002

@@ -1,0 +1,48 @@
+---
+kind: Deployment
+apiVersion: apps/v1beta2
+metadata:
+  labels:
+    role: kafkaoffsetmonitor
+  name: kafkaoffsetmonitor
+  namespace: jyj-kafka
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: kafkaoffsetmonitor
+  template:
+    metadata:
+      labels:
+        role: kafkaoffsetmonitor
+    spec:
+      containers:
+        - name: kafkaoffsetmonitor
+          image: registry.cn-hangzhou.aliyuncs.com/devkevin/kafkaoffsetmonitor-diy:v6.0
+          command:
+            - /root/init.sh
+          ports:
+            - containerPort: 8089
+              protocol: TCP
+          env:
+            - name: "ZOOKEEPER_ADDRS_PORT"
+              value: "10.16.0.144:2181,10.16.0.145:2181,10.16.0.146:2181/jyj-kafka"
+            - name: "KAFKA_ADDRS_PORT"
+              value: "10.16.0.145:9092,10.16.0.144:9092,10.16.0.146:9092"
+            - name: "JAVA_HOME"
+              value: "/usr/java/jdk1.8.0_60"
+---
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    role: kafkaoffsetmonitor
+  name: kafkaoffsetmonitor
+  namespace: jyj-kafka
+spec:
+  ports:
+    - name: http
+      port: 8089
+      targetPort: 8089
+  selector:
+    role: kafkaoffsetmonitor
