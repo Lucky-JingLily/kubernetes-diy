@@ -1,0 +1,32 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: centos-diy-fanshuaiyu
+  namespace: default
+  labels:
+    k8s-app: centos-diy-fanshuaiyu
+    kubernetes.io/cluster-service: "true"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      k8s-app: centos-diy-fanshuaiyu
+  template:
+    metadata:
+      labels:
+        k8s-app: centos-diy-fanshuaiyu
+    spec:
+      containers:
+      - name: centos-diy
+        image: registry.cn-hangzhou.aliyuncs.com/devkevin/centos-diy:v13
+        resources:
+          limits:
+            cpu: 100m
+            memory: 1Gi
+          requests:
+            cpu: 100m
+            memory: 1Gi
+        command: 
+        - /root/init.sh
+      nodeSelector:
+        kubernetes.io/hostname: xdata-hadoop1

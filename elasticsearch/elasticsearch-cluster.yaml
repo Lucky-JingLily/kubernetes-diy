@@ -142,7 +142,7 @@ spec:
               protocol: TCP
           volumeMounts:
             - name: esdata
-              mountPath: /usr/share/elasticsearch/data
+              mountPath: /export/Data/elasticsearch-k8s/data
           env:
             - name: "cluster.name"
               value: "elasticsearch-cluster"

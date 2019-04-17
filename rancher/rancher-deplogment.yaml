@@ -1,0 +1,25 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: rancher-deployment
+  namespace: kube-system
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: rancher-server
+    spec:
+      containers:
+        - name: rancher
+          image: rancher/server
+          args:
+            - "--db-host 10.16.0.146"
+            - "--db-port 3306"
+            - "--db-user root"
+            - "--db-pass mysql"
+            - "--db-name cattle"
+          ports:
+            - containerPort: 8080
+      nodeSelector:
+        kubernetes.io/hostname: xdata-hadoop1
