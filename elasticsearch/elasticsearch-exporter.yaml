@@ -66,17 +66,3 @@ spec:
           requests:
             cpu: 25m
             memory: 64Mi
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: elastic-exporter
-  labels:
-    name: elastich-exporter
-  namespace: ns-elasticsearch
-spec:
-  ports:
-  - port: 9108
-    targetPort: 9108
-  selector:
-    name: p8s-elastic-exporter

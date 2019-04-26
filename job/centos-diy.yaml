@@ -6,9 +6,11 @@ metadata:
     app: centos-diy
 spec:
   containers:
-  - image: registry.cn-hangzhou.aliyuncs.com/devkevin/centos-diy:v10
+  - image: registry.cn-hangzhou.aliyuncs.com/devkevin/centos-diy:v12
     command:
-      - /root/init.sh
+      - tail
+      - -f
+      - /var/log/lastlog
     imagePullPolicy: IfNotPresent
     name: centos-diy
     resources:
