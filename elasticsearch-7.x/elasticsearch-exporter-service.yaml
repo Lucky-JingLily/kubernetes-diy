@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: elasticsearch-exporter
+  labels:
+    name: elasticsearch-exporter
+  namespace: ns-elasticsearch
+spec:
+  ports:
+  - port: 9108
+    targetPort: 9108
+  selector:
+    app: p8s-elastic-exporter

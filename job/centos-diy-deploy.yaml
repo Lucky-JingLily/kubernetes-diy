@@ -1,4 +1,4 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: centos-diy
@@ -7,7 +7,7 @@ metadata:
     k8s-app: centos-diy
     kubernetes.io/cluster-service: "true"
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       k8s-app: centos-diy
