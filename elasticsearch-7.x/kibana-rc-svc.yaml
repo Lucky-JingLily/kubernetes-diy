@@ -1,8 +1,8 @@
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: kibana
-  namespace: ns-elasticsearch
+  namespace: ns-elastic
   labels:
     k8s-app: kibana
     kubernetes.io/cluster-service: "true"
@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: kibana
-        image: docker.elastic.co/kibana/kibana:6.5.4
+        image: docker.elastic.co/kibana/kibana:7.5.0
         resources:
           limits:
             cpu: 100m
@@ -38,7 +38,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: kibana
-  namespace: ns-elasticsearch
+  namespace: ns-elastic
   labels:
     k8s-app: kibana
     kubernetes.io/cluster-service: "true"

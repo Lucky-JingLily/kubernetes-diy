@@ -4,7 +4,7 @@ metadata:
   name: elastichq
   labels:
     name: elastichq
-  namespace: ns-elasticsearch
+  namespace: ns-elastic
 spec:
   ports:
   - port: 5000

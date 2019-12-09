@@ -20,9 +20,9 @@ spec:
       containers:
       - command:
         - /bin/elasticsearch_exporter
-        - -es.uri=http://10.16.0.148:9200
+        - -es.uri=http://10.105.217.108:9200
         - -es.all=true
-        image: justwatch/elasticsearch_exporter:1.0.1
+        image: justwatch/elasticsearch_exporter:1.1.0
         securityContext:
           capabilities:
             drop:
