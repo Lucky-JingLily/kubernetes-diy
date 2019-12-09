@@ -1,3 +1,18 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+ labels:
+   app: elasticsearch
+ name: elasticsearch
+ namespace: ns-elastic
+spec:
+ ports:
+   - port: 9200
+     targetPort: 9200
+ selector:
+   app: elasticsearch
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
