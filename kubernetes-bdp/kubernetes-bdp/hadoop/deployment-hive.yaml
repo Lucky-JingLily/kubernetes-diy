@@ -1,0 +1,58 @@
+---
+kind: Deployment
+apiVersion: apps/v1beta2
+metadata:
+  labels:
+    role: hive
+  name: bdp-private-hive
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: hive
+  template:
+    metadata:
+      labels:
+        role: hive
+    spec:
+      containers:
+        - name: hive
+          image: 10.16.0.144:5000/hive/hive-bdp-private-v1.0:20190523180934
+          command: ["bash", "-c", "/export/servers/monit/bin/monit -I"]
+          ports:
+            - containerPort: 10000
+              protocol: TCP
+            - containerPort: 9083
+              protocol: TCP
+            - containerPort: 10002
+              protocol: TCP
+          resources:
+            requests:
+              cpu: 2000m
+              memory: 4096Mi
+            limits:
+              cpu: 2000m
+              memory: 4096Mi
+---
+kind: Service
+apiVersion: v1
+metadata:
+  labels:
+    role: hive
+  name: bdp-private-hive
+spec:
+  type: NodePort
+  ports:
+    - name: tcp
+      port: 10000
+      targetPort: 10000
+      nodePort: 30100
+    - name: http
+      port: 10002
+      targetPort: 10002
+      nodePort: 30102
+    - name: metastore
+      port: 9083
+      nodePort: 30083
+  selector:
+    role: hive

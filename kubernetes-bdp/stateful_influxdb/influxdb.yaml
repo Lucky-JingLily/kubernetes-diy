@@ -1,0 +1,77 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-influxdb
+  labels:
+    app: bdp-private-influxdb
+spec:
+  ports:
+  - port: 8086
+    name: influxdb-port
+    targetPort: 8086
+  clusterIP: None
+  selector:
+    app: influxdb
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: influxdb
+  namespace: default
+  labels:
+    app: influxdb
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - host: influxdb-bdp-private.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: bdp-private-influxdb
+          servicePort: 8086
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: influxdb
+spec:
+  updateStrategy:
+    type: RollingUpdate
+  serviceName: bdp-private-influxdb
+  replicas: 1 
+  template:
+    metadata:
+      labels:
+        app: influxdb
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - influxdb
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: k8sinfluxdb
+        imagePullPolicy: Always
+        image: 10.16.0.144:5000/influxdb/influxdb-master:1908241504
+        command: ["/export/servers/monit/bin/monit"]
+        args: ["-I"]
+        volumeMounts:
+        - name: influxdb-datadir
+          mountPath: /export/Data
+  volumeClaimTemplates:
+  - metadata:
+      name: influxdb-datadir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: stateful-influxdb-storage-class
+      resources:
+        requests:
+          storage: 500Gi

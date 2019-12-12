@@ -1,0 +1,14 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: resourcemanager-0-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: resourcemanager-0.bdp-private.com
+    http:
+      paths:
+      - backend:
+          serviceName: resourcemanager-0
+          servicePort: 8088

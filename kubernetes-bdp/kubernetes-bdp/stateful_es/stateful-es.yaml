@@ -1,0 +1,99 @@
+---
+kind: Service
+apiVersion: v1
+metadata:
+ labels:
+   app: es-service
+ name: es-service
+ namespace: default
+spec:
+ ports:
+   - port: 9200
+     name: outer
+   - port: 9300
+     name: inner
+     targetPort: 9300
+ selector:
+   app: es
+ clusterIP: None
+---
+kind: StatefulSet
+apiVersion: apps/v1
+metadata:
+ labels:
+   app: es-service
+ name: es
+ namespace: default
+spec:
+ replicas: 1
+ revisionHistoryLimit: 10
+ serviceName: es-service
+ template:
+   metadata:
+     labels:
+       app: es
+   spec:
+     containers:
+       - name: k8s-es
+         image: 10.16.0.144:5000/es/es-bdp-private-v1.0:20190508154704
+         command: ["bash", "-c", "ulimit -l unlimited && sysctl -w vm.max_map_count=262144 && exec /export/servers/monit/bin/monit -I"]
+         ports:
+           - containerPort: 9200
+             protocol: TCP
+           - containerPort: 9300
+             protocol: TCP
+#         env:
+#           - name: "cluster.name"
+#             value: "elasticsearch-cluster"
+#           - name: "bootstrap.memory_lock"
+#             value: "true"
+#           - name: "discovery.zen.ping.unicast.hosts"
+#             value: "elasticsearch-discovery"
+#           - name: "node.master"
+#             value: "false"
+#           - name: "node.data"
+#             value: "true"
+#           - name: "ES_JAVA_OPTS"
+#             value: "-Xms1024m -Xmx1024m"
+         volumeMounts:
+           - name: es-datadir
+             mountPath: /export/Data
+ volumeClaimTemplates:
+   - metadata:
+       name: es-datadir
+     spec:
+       accessModes: ["ReadWriteOnce"]
+       storageClassName: stateful-es-storage-class
+       resources:
+         requests:
+           storage: 500Gi
+#---
+#kind: Service
+#apiVersion: v1
+#metadata:
+# labels:
+#   app: elasticsearch
+# name: elasticsearch-service
+# namespace: default
+#spec:
+# ports:
+#   - port: 9200
+#     targetPort: 9200
+# selector:
+#   app: elasticsearch
+#---
+#apiVersion: extensions/v1beta1
+#kind: Ingress
+#metadata:
+# labels:
+#   app: elasticsearch
+# name: elasticsearch-ingress
+# namespace: default
+#spec:
+# rules:
+#   - host: elasticsearch.kube.com
+#     http:
+#       paths:
+#         - backend:
+#             serviceName: elasticsearch-service
+#             servicePort: 9200

@@ -1,0 +1,91 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-mysql
+  namespace: default
+  labels:
+    app: bdp-private-mysql
+spec:
+  selector:
+    app: mysql
+  clusterIP: None
+  ports:
+    - name: mysql-port
+      port: 3358
+      targetPort: 3358
+
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: mysql-pdb
+spec:
+  selector:
+    matchLabels:
+      app: mysql
+  minAvailable: 1
+
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: mysql-master
+  namespace: default
+spec:
+  serviceName: bdp-private-mysql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql-master
+        imagePullPolicy: Always
+        image: 10.16.0.144:5000/bdp-mysql/bdp-mysql-bdp-private-v1.0:20190509213323
+        volumeMounts:
+        - name: mysql-master-datadir
+          mountPath: /data/
+        command: ["/export/Packages/bdp-mysql/latest/bin/init_mysql.sh"]
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-master-datadir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: stateful-mysql-master-storage-class
+      resources:
+        requests:
+          storage: 500Gi
+
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: mysql-slave
+  namespace: default
+spec:
+  serviceName: bdp-private-mysql
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+      - name: mysql-slave
+        imagePullPolicy: Always
+        image: 10.16.0.144:5000/bdp-mysql/bdp-mysql-bdp-private-slave-v1.0:20190510102812
+        volumeMounts:
+        - name: mysql-slave-datadir
+          mountPath: /data/
+        command: ["/export/Packages/bdp-mysql/latest/bin/init_mysql.sh"]
+  volumeClaimTemplates:
+  - metadata:
+      name: mysql-slave-datadir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: stateful-mysql-slave-storage-class
+      resources:
+        requests:
+          storage: 500Gi

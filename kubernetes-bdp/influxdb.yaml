@@ -1,0 +1,92 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: test-influxdb
+  labels:
+    app: test-influxdb
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-influxdb
+  template:
+    metadata:
+      labels:
+        app: test-influxdb
+    spec:
+      containers:
+      - name: test-influxdb
+        image: 10.16.0.144:5000/influxdb/influxdb-master:1908241504
+        command: ["/export/servers/monit/bin/monit"]
+        args: ["-I"]
+        ports:
+        - containerPort: 8086
+        volumeMounts:
+          - name: influxdb-persistent-storage
+            mountPath: /export/Data
+        readinessProbe:
+          httpGet:
+            scheme: HTTP
+            path: /ping
+            port: 8086
+          periodSeconds: 5
+          initialDelaySeconds: 10
+      volumes:
+      - name: influxdb-persistent-storage
+        persistentVolumeClaim:
+          claimName: influxdb-claim
+      nodeSelector:
+        influxdb: influxdb1
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-influxdb
+  namespace: default
+  labels:
+    app: test-influxdb
+spec:
+  ports:
+  - name: tcp
+    port: 8086
+    targetPort: 8086
+  selector:
+    app: test-influxdb
+  type: ClusterIP
+
+
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: test-influxdb
+  namespace: default
+  labels:
+    app: test-influxdb
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  rules:
+  - host: k8s-nginx-test.jd.com
+    http:
+      paths:
+      - path: /
+        backend:
+          serviceName: test-influxdb
+          servicePort: 8086
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: influxdb-claim
+  namespace: default
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: influxdb-storage-class
+  resources:
+    requests:
+      storage: 500Gi

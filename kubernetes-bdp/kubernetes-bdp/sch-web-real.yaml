@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sch-web-real
+  labels:
+    app: sch-web-real
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sch-web-real
+  template:
+    metadata:
+      labels:
+        app: sch-web-real
+    spec:
+      containers:
+      - name: sch-web-real
+        image: 10.16.0.144:5000/sch-web-real/sch-web-real-middle-platform-dev:20190527183456
+        command: ["/export/servers/monit/bin/monit"]
+        args: ["-I"]
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-sch-web-real-service
+  labels:
+    app: bdp-private-sch-web-real
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    name: server
+    targetPort: 8080
+    nodePort: 30081
+  selector:
+    app: sch-web-real
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: idata-sch-web-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: idata-sch-web.bdp-private.com
+    http:
+      paths:
+      - backend:
+          serviceName: bdp-private-sch-web-real-service
+          servicePort: 8080

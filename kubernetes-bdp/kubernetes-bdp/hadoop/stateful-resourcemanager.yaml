@@ -1,0 +1,67 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-resourcemanager
+  namespace: default
+spec:
+  selector:
+    name: resourcemanager
+  clusterIP: None
+  ports:
+    - name: resourcemanager-port
+      port: 8088
+      targetPort: 8088
+  selector:
+    app: resourcemanager
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: resourcemanager-pdb
+spec:
+  selector:
+    matchLabels:
+      app: resourcemanager
+  minAvailable: 1
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: resourcemanager
+spec:
+  serviceName: bdp-private-resourcemanager
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: resourcemanager
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - resourcemanager
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: k8sresourcemanager
+        imagePullPolicy: Always
+        image: 10.16.0.144:5000/hadoop-online/hadoop-online-bdp-private-v1.0:20190523175344
+        command: ["bash", "-c", "/export/servers/monit/bin/monit -I"]
+        volumeMounts:
+        - name: resourcemanager-datadir
+          mountPath: /data0
+        resources:
+          requests:
+            cpu: 4000m
+            memory: 8192Mi
+          limits:
+            cpu: 4000m
+            memory: 8192Mi
+      volumes:
+      - name: resourcemanager-datadir
+        emptyDir: {}

@@ -1,0 +1,16 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: foo-ingress
+  namespace: default
+  annotations:
+     ingress.kubernetes.io/rewrite-target: "/open-dataplatform"
+spec:
+  rules:
+  - host: idata.bdp-private.com
+    http:
+      paths:
+      - backend: 
+          serviceName: bdp-private-idata-map-service
+          servicePort: 8080
+        path: /dataFactory/

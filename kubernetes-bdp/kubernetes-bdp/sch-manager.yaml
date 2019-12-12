@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sch-manager
+  labels:
+    app: sch-manager
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sch-manager
+  template:
+    metadata:
+      labels:
+        app: sch-manager
+    spec:
+      containers:
+      - name: sch-manager
+        image: 10.16.0.144:5000/sch-manager/sch-manager-middle-platform-dev:20190527182717
+        command: ["/export/servers/monit/bin/monit"]
+        args: ["-I"]
+        ports:
+        - containerPort: 16005
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-sch-manager-service
+  labels:
+    app: bdp-private-sch-manager
+spec:
+  type: NodePort
+  ports:
+  - port: 16005
+    name: server
+    targetPort: 16005
+    nodePort: 30665
+  selector:
+    app: sch-manager

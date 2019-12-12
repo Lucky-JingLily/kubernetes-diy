@@ -1,0 +1,36 @@
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: idata-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: idata.bdp-private.com
+    http:
+      paths:
+      - path: /map/
+        backend:
+          serviceName: bdp-private-idata-map-service
+          servicePort: 8080
+      - path: /dataIntegration/
+        backend:
+          serviceName: bdp-private-idata-map-service
+          servicePort: 8080
+      - path: /scheduler-web/
+        backend:
+          serviceName: bdp-private-sch-web-real-service
+          servicePort: 8080
+      - path: /dw/
+        backend:
+          serviceName: bdp-private-idata-dw-service
+          servicePort: 8080
+      - path: /odps/
+        backend:
+          serviceName: bdp-private-idata-dw-service
+          servicePort: 8080
+      - path: /open-dataplatform/
+        backend:
+          serviceName: bdp-private-idata-map-service
+          servicePort: 8080

@@ -1,0 +1,120 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-zookeeper
+  namespace: default
+spec:
+  selector:
+    name: zookeeper
+  clusterIP: None
+  ports:
+    - name: zookeeper-port
+      port: 2181
+      targetPort: 2181
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: zookeeper-0
+  labels:
+    name: zookeeper
+spec:
+  hostname: zookeeper-0
+  subdomain: bdp-private-zookeeper
+  containers:
+  - image: 10.16.0.144:5000/zookeeper-3.4.11/zookeeper-3.4.11-bdp-private-v1.0:20190425164720
+    command: ["/export/servers/monit/bin/monit"]
+    args: ["-I"]
+    name: zookeeper
+    volumeMounts:
+      - name: zk0-persistent-storage
+        mountPath: /export/Data
+  volumes:
+  - name: zk0-persistent-storage
+    persistentVolumeClaim:
+      claimName: zk0-claim
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: zookeeper-1
+  labels:
+    name: zookeeper
+spec:
+  hostname: zookeeper-1
+  subdomain: bdp-private-zookeeper
+  containers:
+  - image: 10.16.0.144:5000/zookeeper-3.4.11/zookeeper-3.4.11-bdp-private-v1.0:20190425164720
+    command: ["/export/servers/monit/bin/monit"]
+    args: ["-I"]
+    name: zookeeper
+    volumeMounts:
+      - name: zk1-persistent-storage
+        mountPath: /export/Data
+  volumes:
+  - name: zk1-persistent-storage
+    persistentVolumeClaim:
+      claimName: zk1-claim
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: zookeeper-2
+  labels:
+    name: zookeeper
+spec:
+  hostname: zookeeper-2
+  subdomain: bdp-private-zookeeper
+  containers:
+  - image: 10.16.0.144:5000/zookeeper-3.4.11/zookeeper-3.4.11-bdp-private-v1.0:20190425164720
+    command: ["/export/servers/monit/bin/monit"]
+    args: ["-I"]
+    name: zookeeper
+    volumeMounts:
+      - name: zk2-persistent-storage
+        mountPath: /export/Data
+  volumes:
+  - name: zk2-persistent-storage
+    persistentVolumeClaim:
+      claimName: zk2-claim
+
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: zk0-claim
+  namespace: default
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: zk0-storage-class
+  resources:
+    requests:
+      storage: 500Gi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: zk1-claim
+  namespace: default
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: zk1-storage-class
+  resources:
+    requests:
+      storage: 500Gi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: zk2-claim
+  namespace: default
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: zk2-storage-class
+  resources:
+    requests:
+      storage: 500Gi

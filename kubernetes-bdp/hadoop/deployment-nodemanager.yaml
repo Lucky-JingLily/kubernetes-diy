@@ -1,0 +1,21 @@
+---
+kind: Deployment
+apiVersion: apps/v1beta2
+metadata:
+  labels:
+    role: nodemanager
+  name: bdp-private-nodemanager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      role: nodemanager
+  template:
+    metadata:
+      labels:
+        role: nodemanager
+    spec:
+      containers:
+        - name: nodemanager
+          image: 10.16.0.144:5000/hadoop-online/hadoop-online-bdp-private-v1.0:20190515135854
+          command: ["bash", "-c", "/export/servers/monit/bin/monit -I"]

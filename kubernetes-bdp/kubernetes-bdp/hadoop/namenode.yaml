@@ -1,0 +1,82 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-namenode
+  namespace: default
+spec:
+  selector:
+    name: namenode
+  clusterIP: None
+  ports:
+    - name: namenode-port
+      port: 8020
+      targetPort: 8020
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: namenode-0
+  labels:
+    name: namenode
+spec:
+  hostname: namenode-0
+  subdomain: bdp-private-namenode
+  containers:
+  - image: 10.16.0.144:5000/hadoop-online/hadoop-online-bdp-private-v1.0:20190428185822
+    command: ["bash", "-c", "/export/servers/monit/bin/monit -I"]
+    name: namenode
+    volumeMounts:
+      - name: namenode0-persistent-storage
+        mountPath: /export/Data
+  volumes:
+  - name: namenode0-persistent-storage
+    persistentVolumeClaim:
+      claimName: namenode0-claim
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: namenode-1
+  labels:
+    name: namenode
+spec:
+  hostname: namenode-1
+  subdomain: bdp-private-namenode
+  containers:
+  - image: 10.16.0.144:5000/hadoop-online/hadoop-online-bdp-private-v1.0:20190428185822
+    command: ["bash", "-c", "/export/servers/monit/bin/monit -I"]
+    name: namenode
+    volumeMounts:
+      - name: namenode1-persistent-storage
+        mountPath: /export/Data
+  volumes:
+  - name: namenode1-persistent-storage
+    persistentVolumeClaim:
+      claimName: namenode1-claim
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: namenode0-claim
+  namespace: default
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: namenode-storage-class
+  resources:
+    requests:
+      storage: 500Gi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: namenode1-claim
+  namespace: default
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: namenode-storage-class
+  resources:
+    requests:
+      storage: 500Gi

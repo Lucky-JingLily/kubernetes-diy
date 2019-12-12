@@ -1,0 +1,71 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-datanode
+  namespace: default
+spec:
+  selector:
+    name: datanode
+  clusterIP: None
+  ports:
+    - name: datanode-port
+      port: 50010
+      targetPort: 50010
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: datanode-pdb
+spec:
+  selector:
+    matchLabels:
+      app: datanode
+  minAvailable: 1
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: datanode
+spec:
+  serviceName: bdp-private-datanode
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: datanode
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - datanode
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: k8sdatanode
+        imagePullPolicy: Always
+        image: 10.16.0.144:5000/hadoop-online/hadoop-online-bdp-private-v1.0:20190523175718
+        command: ["bash", "-c", "/export/servers/monit/bin/monit -I"]
+        volumeMounts:
+        - name: datanode-datadir
+          mountPath: /data0
+        resources:
+          requests:
+            cpu: 4000m
+            memory: 10240Mi
+          limits:
+            cpu: 4000m
+            memory: 10240Mi
+  volumeClaimTemplates:
+  - metadata:
+      name: datanode-datadir
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: stateful-datanode-storage-class
+      resources:
+        requests:
+          storage: 500Gi

@@ -1,0 +1,67 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-nodemanager
+  namespace: default
+spec:
+  selector:
+    name: nodemanager
+  clusterIP: None
+  ports:
+    - name: nodemanager-port
+      port: 8040
+      targetPort: 8040
+  selector:
+    app: nodemanager
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: nodemanager-pdb
+spec:
+  selector:
+    matchLabels:
+      app: nodemanager
+  minAvailable: 1
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: nodemanager
+spec:
+  serviceName: bdp-private-nodemanager
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: nodemanager
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - nodemanager
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: k8snodemanager
+        imagePullPolicy: Always
+        image: 10.16.0.144:5000/hadoop-online/hadoop-online-bdp-private-v1.0:20190523180205
+        command: ["bash", "-c", "/export/servers/monit/bin/monit -I"]
+        volumeMounts:
+        - name: nodemanager-datadir
+          mountPath: /data0
+        resources:
+          requests:
+            cpu: 6000m
+            memory: 20480Mi
+          limits:
+            cpu: 6000m
+            memory: 20480Mi
+      volumes:
+      - name: nodemanager-datadir
+        emptyDir: {}

@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ras-api
+  labels:
+    app: ras-api
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ras-api
+  template:
+    metadata:
+      labels:
+        app: ras-api
+    spec:
+      containers:
+      - name: ras-api
+        image: 10.16.0.144:5000/ras-api/ras-api-release-middle-platform:20190527114642
+        command: ["/root/init.sh"]
+        ports:
+        - containerPort: 8080
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-ras-api-service
+  labels:
+    app: bdp-private-ras-api
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    name: server
+    targetPort: 8080
+    nodePort: 30999
+  selector:
+    app: ras-api

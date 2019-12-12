@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: jmxtranx
+  labels:
+    app: jmxtranx
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jmxtranx
+  template:
+    metadata:
+      labels:
+        app: jmxtranx
+    spec:
+      containers:
+      - name: jmxtranx
+        image: 10.16.0.144:5000/jmxtrans/jmxtrans-bdp-private-v1.0:20190430093340
+        command: ["/export/servers/monit/bin/monit"]
+        args: ["-I"]
+        ports:
+        - containerPort: 2101
+#        readinessProbe:
+#          tcpSocket:
+#            port: 2101
+#          periodSeconds: 5
+#          initialDelaySeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: jmxtranx
+  namespace: default
+  labels:
+    app: jmxtranx
+spec:
+  ports:
+  - name: tcp
+    port: 2101
+    targetPort: 2101
+  selector:
+    app: jmxtranx
+  type: ClusterIP

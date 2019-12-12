@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: namenode-0-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: namenode-0.bdp-private.com
+    http:
+      paths:
+      - backend:
+          serviceName: namenode-0
+          servicePort: 50070
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: namenode-1-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: namenode-1.bdp-private.com
+    http:
+      paths:
+      - backend:
+          serviceName: namenode-1
+          servicePort: 50070

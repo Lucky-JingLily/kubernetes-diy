@@ -1,0 +1,119 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-kafka
+  namespace: default
+spec:
+  selector:
+    name: kafka
+  clusterIP: None
+  ports:
+    - name: kafka-port
+      port: 9092
+      targetPort: 9092
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka-0
+  labels:
+    name: kafka
+spec:
+  hostname: kafka-0
+  subdomain: bdp-private-kafka
+  containers:
+  - image: 10.16.0.144:5000/kafka/kafka-bdp-private-v1.0:20190428210255
+    command: ["/export/servers/monit/bin/monit"]
+    args: ["-I"]
+    name: kafka
+    volumeMounts:
+      - name: kafka0-persistent-storage
+        mountPath: /export/Data
+  volumes:
+  - name: kafka0-persistent-storage
+    persistentVolumeClaim:
+      claimName: kafka0-claim
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka-1
+  labels:
+    name: kafka
+spec:
+  hostname: kafka-1
+  subdomain: bdp-private-kafka
+  containers:
+  - image: 10.16.0.144:5000/kafka/kafka-bdp-private-v1.0:20190428210255
+    command: ["/export/servers/monit/bin/monit"]
+    args: ["-I"]
+    name: kafka
+    volumeMounts:
+      - name: kafka1-persistent-storage
+        mountPath: /export/Data
+  volumes:
+  - name: kafka1-persistent-storage
+    persistentVolumeClaim:
+      claimName: kafka1-claim
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kafka-2
+  labels:
+    name: kafka
+spec:
+  hostname: kafka-2
+  subdomain: bdp-private-kafka
+  containers:
+  - image: 10.16.0.144:5000/kafka/kafka-bdp-private-v1.0:20190428210255
+    command: ["/export/servers/monit/bin/monit"]
+    args: ["-I"]
+    name: kafka
+    volumeMounts:
+      - name: kafka2-persistent-storage
+        mountPath: /export/Data
+  volumes:
+  - name: kafka2-persistent-storage
+    persistentVolumeClaim:
+      claimName: kafka2-claim
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: kafka0-claim
+  namespace: default
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: kafka0-storage-class
+  resources:
+    requests:
+      storage: 500Gi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: kafka1-claim
+  namespace: default
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: kafka1-storage-class
+  resources:
+    requests:
+      storage: 500Gi
+---
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: kafka2-claim
+  namespace: default
+spec:
+  accessModes:
+  - ReadWriteOnce
+  storageClassName: kafka2-storage-class
+  resources:
+    requests:
+      storage: 500Gi

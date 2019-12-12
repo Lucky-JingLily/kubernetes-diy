@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: sch-center
+  labels:
+    app: sch-center
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sch-center
+  template:
+    metadata:
+      labels:
+        app: sch-center
+    spec:
+      containers:
+      - name: sch-center
+        image: 10.16.0.144:5000/sch-center/sch-center-middle-platform-dev:20190527182306
+        command: ["/export/servers/monit/bin/monit"]
+        args: ["-I"]
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-sch-center-service
+  labels:
+    app: bdp-private-sch-center
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    name: server
+    targetPort: 8080
+    nodePort: 30080
+  selector:
+    app: sch-center
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: idata-sch-web-center-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: idata-sch-web-center.bdp-private.com
+    http:
+      paths:
+      - backend:
+          serviceName: bdp-private-sch-center-service
+          servicePort: 8080

@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ags-gateway
+  labels:
+    app: ags-gateway
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ags-gateway
+  template:
+    metadata:
+      labels:
+        app: ags-gateway
+    spec:
+      containers:
+      - name: ags-gateway
+        image: 10.16.0.144:5000/ags-gateway/ags-gateway-dev:20190524100219
+        command: ["/export/servers/monit/bin/monit"]
+        args: ["-I"]
+        ports:
+        - containerPort: 8080
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-ags-gateway-service
+  labels:
+    app: bdp-private-ags-gateway
+spec:
+  type: NodePort
+  ports:
+  - port: 8080
+    name: server
+    targetPort: 8080
+    nodePort: 30085
+  selector:
+    app: ags-gateway
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: ags-gateway-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: ags-gateway.bdp-private.com
+    http:
+      paths:
+      - backend:
+          serviceName: bdp-private-ags-gateway-service
+          servicePort: 8080

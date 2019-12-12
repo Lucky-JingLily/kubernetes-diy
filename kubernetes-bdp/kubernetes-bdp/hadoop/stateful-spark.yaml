@@ -1,0 +1,84 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-spark
+  namespace: default
+spec:
+  selector:
+    name: spark
+  clusterIP: None
+  ports:
+    - name: spark-port
+      port: 11111
+      targetPort: 11111
+  selector:
+    app: spark
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: bdp-private-spark-port
+  namespace: default
+spec:
+  selector:
+    name: spark
+  type: NodePort
+  ports:
+    - name: spark-port
+      port: 11111
+      targetPort: 11111
+      nodePort: 30111
+  selector:
+    app: spark
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: spark-pdb
+spec:
+  selector:
+    matchLabels:
+      app: spark
+  minAvailable: 1
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: spark
+spec:
+  serviceName: bdp-private-spark
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: spark
+    spec:
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchExpressions:
+                  - key: "app"
+                    operator: In
+                    values:
+                    - spark
+              topologyKey: "kubernetes.io/hostname"
+      containers:
+      - name: k8sspark
+        imagePullPolicy: Always
+        image: 10.16.0.144:5000/spark/spark-bdp-private-v1.0:20190523213414
+        command: ["bash", "-c", "/export/servers/monit/bin/monit -I"]
+        volumeMounts:
+        - name: spark-datadir
+          mountPath: /export/Logs
+        resources:
+          requests:
+            cpu: 2000m
+            memory: 4096Mi
+          limits:
+            cpu: 2000m
+            memory: 4096Mi
+      volumes:
+      - name: spark-datadir
+        emptyDir: {}

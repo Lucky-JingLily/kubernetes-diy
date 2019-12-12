@@ -1,0 +1,73 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: kube-system
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: prometheus-server
+    spec:
+      containers:
+        - name: prometheus
+          image: 10.16.0.144:5000/prom/prometheus:latest
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/export/Data/prometheus"
+            - "--storage.tsdb.retention=7d"
+            - "--web.enable-admin-api"
+            - "--web.enable-lifecycle"
+          ports:
+            - containerPort: 9090
+#          resources:
+#            limits: 
+#              cpu: 500m
+#              memory: 500M
+          volumeMounts:
+            - name: prometheus-config-volume
+              mountPath: /etc/prometheus/
+            - name: prometheus-storage-volume
+              mountPath: /export/Data/prometheus/
+      volumes:
+        - name: prometheus-config-volume
+          configMap:
+            defaultMode: 420
+            name: prometheus-server-conf  
+        - name: prometheus-storage-volume
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: kube-system
+  labels:
+    app: prometheus
+  annotations:
+    prometheus.io/scrape: 'true'
+spec:
+  type: NodePort
+  ports:
+    - name: prometheus
+      port: 9090
+      protocol: TCP
+      nodePort: 30006
+  selector:
+    app: prometheus-server
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: prometheus-ingress
+  annotations:
+    kubernetes.io/ingress.class: "nginx"
+spec:
+  rules:
+  - host: prometheus.bdp-private.com
+    http:
+      paths:
+      - backend:
+          serviceName: bdp-private-prometheus-service
+          servicePort: 8080
